@@ -1,0 +1,13 @@
+extends layout
+
+block content
+  h1= title
+  p Welcome to #{title}
+  form(action='/nickname',method='post')
+    label(for='nickname') Nickname:
+      input#nickname(type='text',name='nickname')
+    br
+    label(for='tripcode') Tripcode:
+      input#tripcode(type='text',name='tripcode')
+    br
+    input(type='submit',value='Save')

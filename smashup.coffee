@@ -1,0 +1,54 @@
+#
+# Module dependencies
+#
+
+dispatchington = require 'dispatchington'
+express = require 'express'
+bcrypt = require 'bcrypt'
+jade = require 'jade'
+http = require 'http'
+path = require 'path'
+app = express()
+router = dispatchington()
+
+# all environments
+app.set 'port', process.env.PORT || 5000
+app.set 'views', __dirname + '/views'
+app.set 'view engine', 'jade'
+app.set 'view options', { pretty: true }
+app.use router.implementedMethods
+app.use express.favicon()
+app.use express.logger 'dev'
+app.use express.bodyParser()
+app.use express.methodOverride()
+app.use express.cookieParser '45ece46e-a656-49ee-8fc0-659f54e012d5'
+app.use express.session()
+app.use router.dispatcher
+app.use require('stylus').middleware __dirname + '/public'
+app.use express.static path.join __dirname, 'public'
+
+# development only
+app.use(express.errorHandler()) if (app.get 'env' == 'development')
+
+http.createServer(app).listen app.get('port'), () ->
+  console.log 'Express server listening on port ' + app.get('port')
+
+do ->
+  model = require './models/nickname'
+  router.define 'verify nickname', model.verify
+  router.get '/nickname', model.get
+  router.post '/nickname', model.post
+
+do ->
+  model = require './models/user'
+  router.get '/users',
+    'verify nickname',
+    model.list
+
+do ->
+  model = require './models/index'
+  router.get '/',
+    'verify nickname',
+    model.index
+
+console.log router.trie
