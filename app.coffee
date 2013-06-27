@@ -4,16 +4,17 @@
 
 dispatchington = require 'dispatchington'
 express = require 'express'
-bcrypt = require 'bcrypt'
 jade = require 'jade'
 http = require 'http'
 path = require 'path'
-app = express()
+db = require 'nedb'
+
 router = dispatchington()
+app = express()
 
 # all environments
 app.set 'port', process.env.PORT || 5000
-app.set 'views', __dirname + '/views'
+app.set 'views', __dirname + '/templates'
 app.set 'view engine', 'jade'
 app.set 'view options', { pretty: true }
 app.use router.implementedMethods
@@ -34,19 +35,19 @@ http.createServer(app).listen app.get('port'), () ->
   console.log 'Express server listening on port ' + app.get('port')
 
 do ->
-  model = require './models/nickname'
+  model = require './logic/nickname'
   router.define 'verify nickname', model.verify
   router.get '/nickname', model.get
   router.post '/nickname', model.post
 
 do ->
-  model = require './models/user'
+  model = require './logic/user'
   router.get '/users',
     'verify nickname',
     model.list
 
 do ->
-  model = require './models/index'
+  model = require './logic/index'
   router.get '/',
     'verify nickname',
     model.index
