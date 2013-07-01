@@ -7,7 +7,7 @@ express = require 'express'
 jade = require 'jade'
 http = require 'http'
 path = require 'path'
-db = require 'nedb'
+nedb = require 'nedb'
 
 router = dispatchington()
 app = express()
