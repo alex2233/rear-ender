@@ -8,12 +8,12 @@ async = require 'async'
 db = { cards: new nedb()
      }
 
-async.parallel(
-  [ (next) ->
+async.auto {
+  cards_indexes: (next) ->
     addIndex = (field, next) ->
       db.cards.ensureIndex { fieldName: field, unique: field == 'title' }, next
     async.each ['title', 'faction'], addIndex, next
-  , (next) ->
+, cards_factions: (next) ->
     factions = require './factions.json'
     loadFaction = (faction, next) ->
       loadCard = (card, next) ->
@@ -26,7 +26,6 @@ async.parallel(
       cards = require faction.filename
       async.each cards, loadCard, next
     async.each factions, loadFaction, next
-  ], (err, results) ->
-    console.log err if err?
-    console.log db.cards
-)
+}, (err) ->
+  db.cards.find {}, (err, results) ->
+    console.log results
