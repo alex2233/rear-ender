@@ -13,8 +13,7 @@ db.cards.ensureIndex { fieldName: field, unique: field == 'title' } for field in
 do ->
   factions = require './factions.json'
   for faction in factions then do (faction) ->
-    cards = require faction.filename
-    for card in cards then do (faction, card) ->
+    loadCard = (card) ->
       card.fluff = '' if !card.fluff?
       card.count = 1 if !card.count?
       card.type = 'Action' if !card.type?
@@ -23,6 +22,9 @@ do ->
       db.cards.insert card, (err, newDoc) ->
         console.log err if err?
         console.log newDoc._id, newDoc.title
+    cards = require faction.filename
+    async.each cards, loadCard, (err) ->
+      console.log err if err?
 
 db.cards.find {}, (err, docs) ->
   console.log err if err?
