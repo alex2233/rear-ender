@@ -43,6 +43,7 @@ http.createServer(app).listen app.get('port'), () ->
 do ->
   model = require './logic/nickname'
   router.define 'verify nickname', model.verify
+  router.define 'list users', model.list
   router.get '/nickname', model.get
   router.post '/nickname', model.post
 
