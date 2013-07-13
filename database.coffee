@@ -14,7 +14,7 @@ exports.loader = (callback) ->
     cards_indexes: (next) ->
       console.log 'Adding indexes...'
       addIndex = (field, next) ->
-        db.cards.ensureIndex { fieldName: field, unique: field == 'title' }, next
+        db.cards.ensureIndex { fieldName: field, unique: field is 'title' }, next
       async.each ['title', 'faction'], addIndex, next
   , cards_factions: (next) ->
       console.log   'Loading factions...'
@@ -26,7 +26,7 @@ exports.loader = (callback) ->
           card.fluff = '' if !card.fluff?
           card.count = 1 if !card.count?
           card.type = 'Action' if !card.type?
-          card.power = 6 - card.count if card.type == 'Minion' && !card.power?
+          card.power = 6 - card.count if card.type is 'Minion' and !card.power?
           card.faction = faction.faction
           db.cards.insert card, next
         cards = require faction.filename

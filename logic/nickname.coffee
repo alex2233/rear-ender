@@ -5,25 +5,29 @@
 nedb = require 'nedb'
 
 recentlyseen = new nedb()
-recentlyseen.ensureIndex { fieldName: 'nickname', unique: true }
+recentlyseen.ensureIndex { fieldName: 'user', unique: true }
+
+parseuser = (doc) ->
+  i = doc.user.indexOf ','
+  user = { nickname: doc.user.substring(i + 1)
+         , triphash: doc.user.substring(0, i - 1)
+         }
+  return user
 
 exports.verify = (request, response, next) ->
-  console.log request.signedCookies
   if request.signedCookies.nickname?
-    recentlyseen.update { nickname: [ request.signedCookies.nickname, request.signedCookies.triphash ? '' ] },
-                        { $set: { lastseen: Date.now() } },
-                        { upsert: true }
     request.nickname = request.signedCookies.nickname
     request.triphash = request.signedCookies.triphash ? ''
+    recentlyseen.update { user: "#{request.triphash},#{request.nickname}" },
+                        { $set: { lastseen: Date.now() } },
+                        { upsert: true }
   else
     response.redirect '/nickname'
   next()
 
 exports.list = (request, response, next) ->
-  recentlyseen.remove { lastseen: { $lt: (Date.now() - 3600000) } }, { multi: true }
-
   recentlyseen.find { lastseen: { $gte: (Date.now() - 3600000) } }, (err, docs) ->
-    request.users = docs
+    request.users = (parseuser doc for doc in docs)
     next()
 
 exports.get = (request, response) ->
@@ -31,10 +35,10 @@ exports.get = (request, response) ->
 
 exports.post = (request, response) ->
   console.log request.body
-
-  if request.body.nickname?
+  if request.body.nickname? isnt ''
+    console.log "Nickname: #{request.body.nickname}"
     response.cookie 'nickname', request.body.nickname, { signed: true, httpOnly: true }
-    if request.body.tripcode?
+    if request.body.tripcode? isnt ''
       hmac = require('crypto').createHmac 'sha384', '3a846127-1c5d-4622-8156-ed2ea713a68d'
       hmac.update 'fdef7e25-d8d8-4fe4-b9a5-909ffea28d31'
       hmac.update request.body.nickname
@@ -43,8 +47,10 @@ exports.post = (request, response) ->
       hmac.update 'cee1e7c3-bd88-422c-abd6-23ea04ddcb21'
       triphash = hmac.digest('base64').replace(/\+/g, '.').replace(/\//g, '_')
       response.cookie 'triphash', triphash, { signed: true, httpOnly: true }
+      console.log "Triphash: #{triphash}"
     else
+      console.log 'Triphash: []'
       response.clearCookie 'triphash'
     response.redirect 303, '/'
-
-  exports.get request, response
+  else
+    exports.get request, response
