@@ -3,11 +3,12 @@
 #
 
 dispatchington = require 'dispatchington'
+
+database = require './database'
 express = require 'express'
 jade = require 'jade'
 http = require 'http'
 path = require 'path'
-nedb = require 'nedb'
 
 router = dispatchington()
 app = express()
@@ -31,6 +32,11 @@ app.use express.static path.join __dirname, 'public'
 # development only
 app.use(express.errorHandler()) if (app.get 'env' == 'development')
 
+db = {}
+(require './database').loader((err, res) ->
+  db = res
+)
+
 http.createServer(app).listen app.get('port'), () ->
   console.log 'Express server listening on port ' + app.get('port')
 
@@ -41,15 +47,7 @@ do ->
   router.post '/nickname', model.post
 
 do ->
-  model = require './logic/user'
-  router.get '/users',
-    'verify nickname',
-    model.list
-
-do ->
   model = require './logic/index'
   router.get '/',
     'verify nickname',
     model.index
-
-console.log router.trie
