@@ -42,19 +42,32 @@ http.createServer(app).listen app.get('port'), () ->
 
 do ->
   model = require './logic/nickname'
-  router.define 'verify nickname', model.verify
-  router.define 'list users', model.list
-  router.get '/nickname', model.get
-  router.post '/nickname', model.post
+
+  router.define 'verify nickname'
+              , model.verify
+
+  router.define 'flush users'
+              , model.flush
+
+  router.define 'list users'
+              , model.list
+
+  router.get '/nickname'
+           , model.get
+
+  router.post '/nickname'
+           , model.post
 
 do ->
   model = require './logic/users'
+
   router.get '/users'
            , 'list users'
            , model.users
 
 do ->
   model = require './logic/index'
-  router.get '/',
-    'verify nickname',
-    model.index
+
+  router.get '/'
+           , 'verify nickname'
+           , model.index

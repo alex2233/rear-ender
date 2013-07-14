@@ -7,12 +7,29 @@ nedb = require 'nedb'
 recentlyseen = new nedb()
 recentlyseen.ensureIndex { fieldName: 'user', unique: true }
 
+# 60 minutes = 1 hour
+# 60 seconds = 1 minute
+# 1000 milliseconds = 1 second
+# 1 hour in milliseconds
+
+@timeout = 60 * 60 * 1000
+
 parseuser = (doc) ->
   i = doc.user.indexOf ','
   user = { nickname: doc.user.substring(i + 1)
          , triphash: doc.user.substring(0, i - 1)
          }
   return user
+
+exports.flush = (request, response, next) ->
+  recentlyseen.remove { lastseen: { $lt: (Date.now() - @timeout) } }, (err, removed) ->
+    request.admin.purged.users = removed
+    next()
+
+exports.list = (request, response, next) ->
+  recentlyseen.find { lastseen: { $gte: (Date.now() - @timeout) } }, (err, docs) ->
+    request.users = (parseuser doc for doc in docs)
+    next()
 
 exports.verify = (request, response, next) ->
   if request.signedCookies.nickname?
@@ -24,14 +41,6 @@ exports.verify = (request, response, next) ->
   else
     response.redirect '/nickname'
   next()
-
-exports.list = (request, response, next) ->
-  recentlyseen.find { lastseen: { $gte: (Date.now() - 3600000) } }, (err, docs) ->
-    request.users = (parseuser doc for doc in docs)
-    next()
-
-exports.get = (request, response) ->
-  response.render 'nickname', { title: 'Express' }
 
 exports.post = (request, response) ->
   console.log request.body
@@ -54,3 +63,6 @@ exports.post = (request, response) ->
     response.redirect 303, '/'
   else
     exports.get request, response
+
+exports.get = (request, response) ->
+  response.render 'nickname', { title: 'Express' }
