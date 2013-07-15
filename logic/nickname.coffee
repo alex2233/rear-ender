@@ -21,17 +21,17 @@ parseuser = (doc) ->
          }
   return user
 
-exports.flush = (request, response, next) ->
+flush_users = (request, response, next) ->
   recentlyseen.remove { lastseen: { $lt: (Date.now() - @timeout) } }, (err, removed) ->
     request.admin.purged.users = removed
     next()
 
-exports.list = (request, response, next) ->
+list_users = (request, response, next) ->
   recentlyseen.find { lastseen: { $gte: (Date.now() - @timeout) } }, (err, docs) ->
     request.users = (parseuser doc for doc in docs)
     next()
 
-exports.verify = (request, response, next) ->
+verify_nickname = (request, response, next) ->
   if request.signedCookies.nickname?
     request.nickname = request.signedCookies.nickname
     request.triphash = request.signedCookies.triphash ? ''
@@ -42,7 +42,10 @@ exports.verify = (request, response, next) ->
     response.redirect '/nickname'
   next()
 
-exports.post = (request, response) ->
+route_get = (request, response) ->
+  response.render 'nickname', { title: 'Express' }
+
+route_post = (request, response) ->
   console.log request.body
   if request.body.nickname? isnt ''
     console.log "Nickname: #{request.body.nickname}"
@@ -62,7 +65,17 @@ exports.post = (request, response) ->
       response.clearCookie 'triphash'
     response.redirect 303, '/'
   else
-    exports.get request, response
+    route_get request, response
 
-exports.get = (request, response) ->
-  response.render 'nickname', { title: 'Express' }
+exports.defines =
+  { 'verify nickname': verify_nickname
+  , 'flush users': flush_users
+  , 'list users': list_users
+  }
+
+exports.addroutes = (router) ->
+  router.get '/nickname'
+           , route_get
+
+  router.post '/nickname'
+           , route_post

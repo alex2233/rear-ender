@@ -3,12 +3,13 @@
 #
 
 dispatchington = require 'dispatchington'
-
 database = require './database'
 express = require 'express'
+async = require 'async'
 jade = require 'jade'
 http = require 'http'
 path = require 'path'
+fs = require 'fs'
 
 router = dispatchington()
 app = express()
@@ -40,34 +41,28 @@ db = {}
 http.createServer(app).listen app.get('port'), () ->
   console.log 'Express server listening on port ' + app.get('port')
 
-do ->
-  model = require './logic/nickname'
+logicfiles = (path.join './logic', file for file in fs.readdirSync './logic')
+logicfiles = (file for file in logicfiles when fs.statSync(file).isFile())
+logicfiles = (path.basename file, path.extname file for file in logicfiles)
 
-  router.define 'verify nickname'
-              , model.verify
+#
+# Load definitions from logic files first
+#
+console.log 'Defining middleware...'
+for file in logicfiles
+  do ->
+    model = require "./logic/#{file}"
 
-  router.define 'flush users'
-              , model.flush
+    for item, callback of model.defines
+      console.log "                   ...#{item}"
+      router.define item, callback
 
-  router.define 'list users'
-              , model.list
-
-  router.get '/nickname'
-           , model.get
-
-  router.post '/nickname'
-           , model.post
-
-do ->
-  model = require './logic/users'
-
-  router.get '/users'
-           , 'list users'
-           , model.users
-
-do ->
-  model = require './logic/index'
-
-  router.get '/'
-           , 'verify nickname'
-           , model.index
+#
+# Load routes from logic files second
+#
+console.log 'Adding routes from...'
+for file in logicfiles
+  do ->
+    console.log "                  ...#{file}"
+    model = require "./logic/#{file}"
+    model.addroutes(router)
