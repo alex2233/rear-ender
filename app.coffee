@@ -5,7 +5,6 @@
 dispatchington = require 'dispatchington'
 database = require './database'
 express = require 'express'
-async = require 'async'
 jade = require 'jade'
 http = require 'http'
 path = require 'path'
