@@ -46,18 +46,19 @@ route_get = (request, response) ->
   response.render 'nickname', { title: 'Express' }
 
 route_post = (request, response) ->
+  config = require '../config'
   console.log request.body
   if request.body.nickname? isnt ''
     console.log "Nickname: #{request.body.nickname}"
     response.cookie 'nickname', request.body.nickname, { signed: true, httpOnly: true }
     if request.body.tripcode? isnt ''
-      hmac = require('crypto').createHmac 'sha384', '3a846127-1c5d-4622-8156-ed2ea713a68d'
-      hmac.update 'fdef7e25-d8d8-4fe4-b9a5-909ffea28d31'
+      hmac = require('crypto').createHmac 'sha384', config.uuids.hmacsalt
+      hmac.update config.uuids.hashiv
       hmac.update request.body.nickname
-      hmac.update '156a3282-8589-4923-a177-f9b039d9ae2b'
+      hmac.update config.uuids.hashsv
       hmac.update request.body.tripcode
-      hmac.update 'cee1e7c3-bd88-422c-abd6-23ea04ddcb21'
-      triphash = hmac.digest('base64').replace(/\+/g, '.').replace(/\//g, '_')
+      hmac.update config.uuids.hashtv
+      triphash = hmac.digest('base64')
       response.cookie 'triphash', triphash, { signed: true, httpOnly: true }
       console.log "Triphash: #{triphash}"
     else

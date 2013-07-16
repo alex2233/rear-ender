@@ -10,6 +10,8 @@ http = require 'http'
 path = require 'path'
 fs = require 'fs'
 
+config = require './config'
+
 router = dispatchington()
 app = express()
 
@@ -23,7 +25,7 @@ app.use express.favicon()
 app.use express.logger 'dev'
 app.use express.bodyParser()
 app.use express.methodOverride()
-app.use express.cookieParser '45ece46e-a656-49ee-8fc0-659f54e012d5'
+app.use express.cookieParser config.uuids.cookies
 # app.use express.session()
 app.use router.dispatcher
 app.use require('stylus').middleware __dirname + '/public'

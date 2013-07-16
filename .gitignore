@@ -11,5 +11,6 @@ pids
 logs
 results
 
+config.coffee
 npm-debug.log
 node_modules
