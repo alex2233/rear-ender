@@ -23,10 +23,10 @@ exports.loader = (callback) ->
         db.factions.push faction.faction
         console.log "                ...#{faction.faction}"
         loadCard = (card, next) ->
-          card.fluff = '' if !card.fluff?
-          card.count = 1 if !card.count?
-          card.type = 'Action' if !card.type?
-          card.power = 6 - card.count if card.type is 'Minion' and !card.power?
+          card.fluff = '' unless card.fluff?
+          card.count = 1 unless card.count?
+          card.type = 'Action' unless card.type?
+          card.power = 6 - card.count unless card.power? or card.type isnt 'Minion'
           card.faction = faction.faction
           db.cards.insert card, next
         cards = require faction.filename

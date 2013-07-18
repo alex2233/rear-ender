@@ -57,9 +57,9 @@ console.log 'Defining middleware...'
 for file in logicfiles
   do ->
     model = require "./logic/#{file}"
-
+    console.log "                   ...#{file}..."
     for item, callback of model.defines
-      console.log "                   ...#{item}"
+      console.log "                      ...#{item}"
       router.define item, callback
 
 #
