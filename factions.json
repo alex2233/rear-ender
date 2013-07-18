@@ -1,7 +1,0 @@
-[ { "faction": "Aliens"
-  , "filename": "./faction/aliens.json"
-  }
-, { "faction": "Dinosaurs"
-  , "filename": "./faction/dinosaurs.json"
-  }
-]

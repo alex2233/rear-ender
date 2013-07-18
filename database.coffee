@@ -18,18 +18,18 @@ exports.loader = (callback) ->
       async.each ['title', 'faction'], addIndex, next
   , cards_factions: (next) ->
       console.log   'Loading factions...'
-      factions = require './factions.json'
+      factions = require './factions/index.json'
       loadFaction = (faction, next) ->
-        db.factions.push faction.faction
-        console.log "                ...#{faction.faction}"
+        db.factions.push faction
+        console.log "                ...#{faction}"
         loadCard = (card, next) ->
           card.fluff = '' unless card.fluff?
           card.count = 1 unless card.count?
           card.type = 'Action' unless card.type?
           card.power = 6 - card.count unless card.power? or card.type isnt 'Minion'
-          card.faction = faction.faction
+          card.faction = faction
           db.cards.insert card, next
-        cards = require faction.filename
+        cards = require "./factions/#{faction.toLowerCase()}.json"
         async.each cards, loadCard, next
       async.each factions, loadFaction, next
   }, (err) ->
