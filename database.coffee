@@ -2,9 +2,12 @@
 # Module dependencies
 #
 
+fs = require 'fs'
+path = require 'path'
+nedb = require 'nedb'
+async = require 'async'
+
 exports.loader = (callback) ->
-  nedb = require 'nedb'
-  async = require 'async'
 
   db = { cards: new nedb()
        , factions: []
@@ -18,19 +21,21 @@ exports.loader = (callback) ->
       async.each ['title', 'faction'], addIndex, next
   , cards_factions: (next) ->
       console.log   'Loading factions...'
-      factions = require './factions/index.json'
+      factions = (path.join './factions', file for file in fs.readdirSync './factions')
+      factions = (file for file in factions when fs.statSync(file).isFile())
+      factions = (path.basename file, path.extname file for file in factions)
       loadFaction = (faction, next) ->
-        db.factions.push faction
-        console.log "                ...#{faction}"
+        data = require "./factions/#{faction}"
+        db.factions.push data.faction
+        console.log "                ...#{data.faction}"
         loadCard = (card, next) ->
           card.fluff = '' unless card.fluff?
           card.count = 1 unless card.count?
           card.type = 'Action' unless card.type?
           card.power = 6 - card.count unless card.power? or card.type isnt 'Minion'
-          card.faction = faction
+          card.faction = data.faction
           db.cards.insert card, next
-        cards = require "./factions/#{faction.toLowerCase()}.json"
-        async.each cards, loadCard, next
+        async.each data.cards, loadCard, next
       async.each factions, loadFaction, next
   }, (err) ->
     callback err, db
