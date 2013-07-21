@@ -24,7 +24,11 @@ async.auto
 
   cards_factions: (next) ->
     console.log   'Loading factions...'
-    factions = (path.basename file, path.extname file for file in fs.readdirSync './factions' when fs.statSync(path.join './factions', file).isFile())
+    factions = (
+      path.basename file, path.extname file \
+      for file in fs.readdirSync './factions' \
+      when fs.statSync(path.join './factions', file).isFile()
+    )
     loadFaction = (faction, next) ->
       data = require "./factions/#{faction}"
       GLOBAL.db.factions.push data.faction
