@@ -38,11 +38,6 @@ app.use express.static path.join __dirname, 'public'
 # development only
 app.use(express.errorHandler()) if (app.get 'env' is 'development')
 
-db = {}
-(require './database').loader((err, res) ->
-  db = res
-)
-
 http.createServer(app).listen app.get('port'), () ->
   console.log 'Express server listening on port ' + app.get('port')
 
