@@ -41,9 +41,7 @@ app.use(express.errorHandler()) if (app.get 'env' is 'development')
 http.createServer(app).listen app.get('port'), () ->
   console.log 'Express server listening on port ' + app.get('port')
 
-logicfiles = (path.join './logic', file for file in fs.readdirSync './logic')
-logicfiles = (file for file in logicfiles when fs.statSync(file).isFile())
-logicfiles = (path.basename file, path.extname file for file in logicfiles)
+logicfiles = (path.basename file, path.extname file for file in fs.readdirSync './logic' when fs.statSync(path.join './logic', file).isFile())
 
 #
 # Load definitions from logic files first
