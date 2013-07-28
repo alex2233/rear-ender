@@ -1,19 +1,24 @@
 { "name": "rear-ender"
 , "description": "A Smash-Up! webapp clone, inspired by Pretend Your XYZZY"
-, "author": { "name": "Wolf with Wings"
-            , "email": "wolfwings@wolfwings.us"
-            , "url": "http://wolfwings.us"
-            }
+, "author":
+  { "name": "Wolf with Wings"
+  , "email": "wolfwings@wolfwings.us"
+  , "url": "http://wolfwings.us"
+  }
 , "homepage": "http://rear-ender.wolfwings.us"
 , "version": "0.0.1"
 , "private": true
 , "scripts": { "start": "node_modules/coffee-script/bin/coffee app.coffee" }
-, "dependencies": { "coffee-script": "~1.6"
-                  , "dispatchington": "~0.0"
-                  , "express": "~3.2"
-                  , "stylus": "~0.32"
-                  , "jade": "~0.31"
-                  , "async": "~0.2"
-                  , "nedb": "~0.7"
-                  }
+, "dependencies":
+  { "coffee-script": "~1.6"
+  , "dispatchington": "~0.0"
+  , "express": "~3.2"
+  , "stylus": "~0.32"
+  , "jade": "~0.31"
+  , "async": "~0.2"
+  , "nedb": "~0.7"
+  }
+, "devDependencies":
+  { "zombie": "*"
+  }
 }
