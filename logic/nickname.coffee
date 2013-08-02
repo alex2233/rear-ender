@@ -12,7 +12,7 @@ recentlyseen.ensureIndex { fieldName: 'user', unique: true }
 # 1000 milliseconds = 1 second
 # 1 hour in milliseconds
 
-@timeout = 60 * 60 * 1000
+timeout = 60 * 60 * 1000
 
 parseuser = (doc) ->
   i = doc.user.indexOf ','
@@ -22,22 +22,26 @@ parseuser = (doc) ->
   return user
 
 flush_users = (request, response, next) ->
-  recentlyseen.remove { lastseen: { $lt: (Date.now() - @timeout) } }, (err, removed) ->
+  recentlyseen.remove { lastseen: { $lt: (Date.now() - (timeout * 2)) } }, (err, removed) ->
     request.admin.purged.users = removed
     next()
 
 list_users = (request, response, next) ->
-  recentlyseen.find { lastseen: { $gte: (Date.now() - @timeout) } }, (err, docs) ->
+  recentlyseen.find { lastseen: { $gte: (Date.now() - timeout) } }, (err, docs) ->
     request.users = (parseuser doc for doc in docs)
     next()
+
+ping_user = (nickname, triphash) ->
+  console.log "Recently saw #{triphash},#{nickname}..."
+  recentlyseen.update { user: "#{triphash},#{nickname}" },
+                      { $set: { lastseen: Date.now() } },
+                      { upsert: true }
 
 verify_nickname = (request, response, next) ->
   if request.signedCookies.nickname?
     request.nickname = request.signedCookies.nickname
     request.triphash = request.signedCookies.triphash ? ''
-    recentlyseen.update { user: "#{request.triphash},#{request.nickname}" },
-                        { $set: { lastseen: Date.now() } },
-                        { upsert: true }
+    ping_user request.nickname, request.triphash
   else
     response.redirect '/nickname'
   next()
@@ -46,11 +50,9 @@ route_get = (request, response) ->
   response.render 'nickname', { title: 'Express' }
 
 route_post = (request, response) ->
-  console.log request.body
   if request.body.nickname? isnt ''
-    console.log "Nickname: #{request.body.nickname}"
     response.cookie 'nickname', request.body.nickname, { signed: true, httpOnly: true }
-    if request.body.tripcode? isnt ''
+    if request.body.tripcode ? false
       hmac = require('crypto').createHmac 'sha384', GLOBAL.config.uuids.hmacsalt
       hmac.update GLOBAL.config.uuids.hashiv
       hmac.update request.body.nickname
@@ -59,10 +61,10 @@ route_post = (request, response) ->
       hmac.update GLOBAL.config.uuids.hashtv
       triphash = hmac.digest('base64')
       response.cookie 'triphash', triphash, { signed: true, httpOnly: true }
-      console.log "Triphash: #{triphash}"
     else
-      console.log 'Triphash: []'
+      triphash = ''
       response.clearCookie 'triphash'
+    ping_user request.body.nickname, triphash
     response.redirect 303, '/'
   else
     route_get request, response

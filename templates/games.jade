@@ -9,3 +9,8 @@ block content
     p
       b #{user.nickname}
       span # #{user.triphash}
+
+  h2 Active Games
+  each game in games
+    p
+      b #{game}
