@@ -8,7 +8,14 @@
 , "homepage": "http://rear-ender.wolfwings.us"
 , "version": "0.0.1"
 , "private": true
-, "scripts": { "start": "node_modules/coffee-script/bin/coffee app.coffee" }
+, "scripts":
+  { "start": "node_modules/coffee-script/bin/coffee app.coffee"
+  , "test": "node_modules/coffee-script/bin/coffee testing.coffee"
+  }
+, "repository":
+  { "type": "git"
+  , "url": "https://github.com/WolfWings/rear-ender.git"
+  }
 , "dependencies":
   { "coffee-script": "~1.6"
   , "dispatchington": "~0.0"
