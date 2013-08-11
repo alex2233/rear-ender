@@ -4,13 +4,15 @@ block content
   h1= title
   p Welcome to #{title}
 
-  h2 Active Users
-  each user in users
-    p
-      b #{user.nickname}
-      span # #{user.triphash}
-
   h2 Active Games
-  each game in games
-    p
-      b #{game}
+  form(action='/games/join',method='post')
+    select(name='game')
+      option(disabled,selected) Select Game
+      each game in games
+        option #{game}
+    input(type='submit',value='Join')
+
+  form(action='/games/create',method='post')
+    label(for='gamename') Game Name:
+      input#gamename(type='text',name='gamename')
+    input(type='submit',value='Create')

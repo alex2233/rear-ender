@@ -25,11 +25,10 @@ exports.defines =
 # Routes
 
 route_get = (request, response) ->
-  response.render 'games', { title: 'Express', users: request.users ? {}, games: request.games ? {} }
+  response.render 'games', { title: 'Games List - ', games: request.games ? {} }
 
 exports.addroutes = (router) ->
   router.get '/games'
            , 'verify nickname'
-           , 'list users'
            , 'list games'
            , route_get

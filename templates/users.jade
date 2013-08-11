@@ -5,7 +5,9 @@ block content
   p Welcome to #{title}
 
   h2 Active Users
-  each user in users
-    p
-      b #{user.nickname}
-      span # #{user.triphash}
+  form(action='/users/info',method='get')
+    select(name='user')
+      option(disabled,selected) Select User
+      each user in users
+        option #{user.nickname}##{user.triphash}
+    input(type='submit',value='Info')

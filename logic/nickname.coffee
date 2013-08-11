@@ -32,8 +32,19 @@ list_users = (request, response, next) ->
     next()
 
 ping_user = (nickname, triphash) ->
-  console.log "Recently saw #{triphash},#{nickname}..."
-  recentlyseen.update { user: "#{triphash},#{nickname}" },
+  console.log "Recently saw #{nickname},#{triphash}..."
+  if triphash isnt ''
+    hmac = require('crypto').createHmac 'sha384', GLOBAL.config.uuids.hmacsalt
+    hmac.update GLOBAL.config.uuids.hashiv
+    hmac.update nickname
+    hmac.update GLOBAL.config.uuids.hashsv
+    hmac.update triphash
+    hmac.update GLOBAL.config.uuids.hashtv
+    tripcode = hmac.digest('base64')[1..8]
+  else
+    tripcode = ''
+
+  recentlyseen.update { user: "#{tripcode},#{nickname}" },
                       { $set: { lastseen: Date.now() } },
                       { upsert: true }
 
@@ -47,7 +58,7 @@ verify_nickname = (request, response, next) ->
   next()
 
 route_get = (request, response) ->
-  response.render 'nickname', { title: 'Express' }
+  response.render 'nickname', { title: 'Enter Nickname - ' }
 
 route_post = (request, response) ->
   if request.body.nickname? isnt ''
@@ -59,7 +70,7 @@ route_post = (request, response) ->
       hmac.update GLOBAL.config.uuids.hashsv
       hmac.update request.body.tripcode
       hmac.update GLOBAL.config.uuids.hashtv
-      triphash = hmac.digest('base64')
+      triphash = hmac.digest 'base64'
       response.cookie 'triphash', triphash, { signed: true, httpOnly: true }
     else
       triphash = ''

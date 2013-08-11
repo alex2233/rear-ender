@@ -3,7 +3,7 @@
 #
 
 index = (request, response) ->
-  response.render 'index', { title: 'Express', nickname: request.signedCookies.nickname }
+  response.render 'index', { title: '', nickname: request.signedCookies.nickname }
 
 exports.addroutes = (router) ->
   router.get '/'
