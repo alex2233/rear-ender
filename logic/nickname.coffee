@@ -5,7 +5,7 @@
 nedb = require 'nedb'
 
 recentlyseen = new nedb()
-recentlyseen.ensureIndex { fieldName: 'user', unique: true }
+recentlyseen.ensureIndex { fieldName: 'unique', unique: true }
 
 # 60 minutes = 1 hour
 # 60 seconds = 1 minute
@@ -14,39 +14,55 @@ recentlyseen.ensureIndex { fieldName: 'user', unique: true }
 
 timeout = 60 * 60 * 1000
 
-parseuser = (doc) ->
-  i = doc.user.indexOf ','
-  user = { nickname: doc.user.substring(i + 1)
-         , triphash: doc.user.substring(0, i - 1)
+filter = (doc) ->
+  # Only push specific fields upstream
+  user = { nickname: doc.nickname
+         , tripcode: doc.tripcode
+         , lastseen: doc.lastseen
          }
   return user
 
 flush_users = (request, response, next) ->
-  recentlyseen.remove { lastseen: { $lt: (Date.now() - (timeout * 2)) } }, (err, removed) ->
+  recentlyseen.remove { lastseen: { $lt: (Date.now() - timeout) } }, (err, removed) ->
     request.admin.purged.users = removed
     next()
 
 list_users = (request, response, next) ->
   recentlyseen.find { lastseen: { $gte: (Date.now() - timeout) } }, (err, docs) ->
-    request.users = (parseuser doc for doc in docs)
+    request.users = (filter doc for doc in docs)
     next()
 
 ping_user = (nickname, triphash) ->
-  console.log "Recently saw #{nickname},#{triphash}..."
-  if triphash isnt ''
-    hmac = require('crypto').createHmac 'sha384', GLOBAL.config.uuids.hmacsalt
-    hmac.update GLOBAL.config.uuids.hashiv
-    hmac.update nickname
-    hmac.update GLOBAL.config.uuids.hashsv
-    hmac.update triphash
-    hmac.update GLOBAL.config.uuids.hashtv
-    tripcode = hmac.digest('base64')[1..8]
-  else
-    tripcode = ''
+  recentlyseen.update
+    unique: "#{triphash},#{nickname}"
+  ,
+    $set:
+      lastseen: Date.now()
+  ,
+    upsert: true
+  ,
+    (err, numReplaced, upserted) ->
+      if upserted
+        if triphash is ''
+          tripcode = ''
+        else
+          hmac = require('crypto').createHmac 'sha384', GLOBAL.config.uuids.hmacsalt
+          hmac.update GLOBAL.config.uuids.hashiv
+          hmac.update nickname
+          hmac.update GLOBAL.config.uuids.hashsv
+          hmac.update triphash
+          hmac.update GLOBAL.config.uuids.hashtv
+          tripcode = hmac.digest('base64')[1..8]
 
-  recentlyseen.update { user: "#{tripcode},#{nickname}" },
-                      { $set: { lastseen: Date.now() } },
-                      { upsert: true }
+        recentlyseen.update
+          unique: "#{triphash},#{nickname}"
+        ,
+          $set:
+            tripcode: tripcode
+            nickname: nickname
+        console.log "First sighting of #{nickname},#{triphash[1..10]}... (generated tripcode #{tripcode})"
+      else
+        console.log "Return visit from #{nickname},#{triphash[1..10]}..."
 
 verify_nickname = (request, response, next) ->
   if request.signedCookies.nickname?

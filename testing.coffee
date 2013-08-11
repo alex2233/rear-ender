@@ -20,13 +20,14 @@ async.auto
     async.map [0..9], create, next
 
   create_game: [ 'browsers', (next, results) ->
-    console.log 'Creating game w/ Browser #0...'
-    browser = results.browsers[0]
+    console.log 'Creating game w/ Browser #9...'
+    browser = results.browsers[9]
     browser.visit "#{baseURL}/games", ->
       browser
         .fill('gamename', "Test Game")
         .pressButton('Create', ->
-          next null, browser
+          results.browsers[9] = browser
+          next null, true
         )
   ]
 
