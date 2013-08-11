@@ -24,11 +24,24 @@ exports.defines =
 
 # Routes
 
-route_get = (request, response) ->
-  response.render 'games', { title: 'Games List - ', games: request.games ? {} }
+list_get = (request, response) ->
+  response.render 'games',
+    title: 'Games List - '
+    games: request.games ? {}
+
+create_post = (request, response) ->
+  console.log request
+  response.render 'games',
+    title: 'Create Game - '
+    games: request.games ? {}
 
 exports.addroutes = (router) ->
   router.get '/games'
            , 'verify nickname'
            , 'list games'
-           , route_get
+           , list_get
+
+  router.post '/games/create'
+           , 'verify nickname'
+           , 'list games'
+           , create_post

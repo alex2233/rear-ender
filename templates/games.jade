@@ -1,10 +1,8 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
-
   h2 Active Games
+
   form(action='/games/join',method='post')
     select(name='game')
       option(disabled,selected) Select Game
