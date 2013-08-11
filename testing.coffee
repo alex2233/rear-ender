@@ -26,8 +26,9 @@ async.auto
       browser
         .fill('gamename', "Test Game")
         .pressButton('Create', ->
+          console.log browser.html 'body'
           results.browsers[9] = browser
-          next null, true
+          next null, null
         )
   ]
 

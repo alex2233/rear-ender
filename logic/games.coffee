@@ -30,10 +30,11 @@ list_get = (request, response) ->
     games: request.games ? {}
 
 create_post = (request, response) ->
-  console.log request
-  response.render 'games',
+  console.log request.body.gamename ? ''
+  response.render 'game_create',
     title: 'Create Game - '
     games: request.games ? {}
+    gamename: request.body.gamename ? ''
 
 exports.addroutes = (router) ->
   router.get '/games'

@@ -45,6 +45,7 @@ ping_user = (nickname, triphash) ->
       if upserted
         if triphash is ''
           tripcode = ''
+          console.log "First sighting of #{nickname}... (no tripcode)"
         else
           hmac = require('crypto').createHmac 'sha384', GLOBAL.config.uuids.hmacsalt
           hmac.update GLOBAL.config.uuids.hashiv
@@ -53,6 +54,7 @@ ping_user = (nickname, triphash) ->
           hmac.update triphash
           hmac.update GLOBAL.config.uuids.hashtv
           tripcode = hmac.digest('base64')[1..8]
+          console.log "First sighting of #{nickname},#{triphash[1..10]}... (generated tripcode #{tripcode})"
 
         recentlyseen.update
           unique: "#{triphash},#{nickname}"
@@ -60,9 +62,11 @@ ping_user = (nickname, triphash) ->
           $set:
             tripcode: tripcode
             nickname: nickname
-        console.log "First sighting of #{nickname},#{triphash[1..10]}... (generated tripcode #{tripcode})"
       else
-        console.log "Return visit from #{nickname},#{triphash[1..10]}..."
+        if triphash is ''
+          console.log "Return visit from #{nickname}..."
+        else
+          console.log "Return visit from #{nickname},#{triphash[1..10]}..."
 
 verify_nickname = (request, response, next) ->
   if request.signedCookies.nickname?
