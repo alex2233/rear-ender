@@ -22,14 +22,10 @@ async.auto
   create_game: [ 'browsers', (next, results) ->
     console.log 'Creating game w/ Browser #9...'
     browser = results.browsers[9]
-    browser.visit "#{baseURL}/games", ->
-      browser
-        .fill('gamename', "Test Game")
-        .pressButton('Create', ->
-          console.log browser.html 'body'
-          results.browsers[9] = browser
-          next null, null
-        )
+    browser.visit "#{baseURL}/games/create", ->
+      console.log browser.html 'body'
+      results.browsers[9] = browser
+      next null, null
   ]
 
 , (err, results) ->

@@ -10,7 +10,7 @@ block content
         option #{game}
     input(type='submit',value='Join')
 
-  form(action='/games/create',method='post')
-    label(for='gamename') Game Name:
-      input#gamename(type='text',name='gamename')
+  br
+
+  form(action='/games/create',method='get')
     input(type='submit',value='Create')

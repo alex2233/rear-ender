@@ -1,0 +1,21 @@
+extends layout
+
+block content
+  h2 Create Game
+
+  form(action='/games/create',method='post')
+    input(type='gamename',name='gamename',id='gamename')
+    label(for='gamename') Game Name
+    br
+
+    input(type='password',name='password',id='password')
+    label(for='password') Password
+    br
+
+    h3 Factions
+    each faction in factions
+      input(type='checkbox',name='faction-#{faction}',id='faction-#{faction}',checked)
+      label(for='faction-#{faction}') #{faction}
+      br
+
+    input(type='submit',value='Create')

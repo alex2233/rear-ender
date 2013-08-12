@@ -14,14 +14,6 @@ recentlyseen.ensureIndex { fieldName: 'unique', unique: true }
 
 timeout = 60 * 60 * 1000
 
-filter = (doc) ->
-  # Only push specific fields upstream
-  user = { nickname: doc.nickname
-         , tripcode: doc.tripcode
-         , lastseen: doc.lastseen
-         }
-  return user
-
 flush_users = (request, response, next) ->
   recentlyseen.remove { lastseen: { $lt: (Date.now() - timeout) } }, (err, removed) ->
     request.admin.purged.users = removed
@@ -29,6 +21,10 @@ flush_users = (request, response, next) ->
 
 list_users = (request, response, next) ->
   recentlyseen.find { lastseen: { $gte: (Date.now() - timeout) } }, (err, docs) ->
+    filter = (doc) ->
+      nickname: doc.nickname
+      tripcode: doc.tripcode
+      lastseen: doc.lastseen
     request.users = (filter doc for doc in docs)
     next()
 

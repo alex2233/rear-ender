@@ -9,7 +9,11 @@ games.ensureIndex { fieldName: 'title', unique: true }
 
 list_games = (request, response, next) ->
   games.find { finished: false }, (err, docs) ->
-    request.games = (parsegame doc for doc in docs)
+    filter = (doc) ->
+      gamename: doc.gamename
+      password: doc.password
+      factions: doc.factions
+    request.games = (filter doc for doc in docs)
     next()
 
 flush_games = (request, response, next) ->
@@ -29,12 +33,11 @@ list_get = (request, response) ->
     title: 'Games List - '
     games: request.games ? {}
 
-create_post = (request, response) ->
-  console.log request.body.gamename ? ''
+create_get = (request, response) ->
   response.render 'game_create',
     title: 'Create Game - '
     games: request.games ? {}
-    gamename: request.body.gamename ? ''
+    factions: GLOBAL.db.factions
 
 exports.addroutes = (router) ->
   router.get '/games'
@@ -42,7 +45,7 @@ exports.addroutes = (router) ->
            , 'list games'
            , list_get
 
-  router.post '/games/create'
+  router.get '/games/create'
            , 'verify nickname'
            , 'list games'
-           , create_post
+           , create_get
