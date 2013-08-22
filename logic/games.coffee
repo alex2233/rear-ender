@@ -34,7 +34,26 @@ list_get = (request, response) ->
     games: request.games ? {}
 
 create_get = (request, response) ->
-  response.render 'game_create',
+  response.render 'games_create',
+    title: 'Create Game - '
+    games: request.games ? {}
+    factions: GLOBAL.db.factions
+
+create_post = (request, response) ->
+  if request.body.gamename? isnt ''
+    game =
+      name: request.body.gamename?
+      owner:
+        nickname: request.nickname
+        triphash: request.triphash
+      password: request.body.password ? ''
+      factions: (
+        faction for faction in GLOBAL.db.factions \
+        when request.body["faction-#{faction}"]?
+      )
+    console.log game
+    
+  response.render 'games_create',
     title: 'Create Game - '
     games: request.games ? {}
     factions: GLOBAL.db.factions
@@ -49,3 +68,8 @@ exports.addroutes = (router) ->
            , 'verify nickname'
            , 'list games'
            , create_get
+
+  router.post '/games/create'
+           , 'verify nickname'
+           , 'list games'
+           , create_post

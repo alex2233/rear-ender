@@ -4,7 +4,7 @@ block content
   h2 Active Games
 
   form(action='/games/join',method='post')
-    select(name='game')
+    select(name='game',id='games')
       option(disabled,selected) Select Game
       each game in games
         option #{game}

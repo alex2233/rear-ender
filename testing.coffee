@@ -23,9 +23,21 @@ async.auto
     console.log 'Creating game w/ Browser #9...'
     browser = results.browsers[9]
     browser.visit "#{baseURL}/games/create", ->
-      console.log browser.html 'body'
+      console.log browser.html()
       results.browsers[9] = browser
       next null, null
+  ]
+
+  join_game: [ 'create_game', (next, results) ->
+    console.log 'Joining game...'
+    join = (item, next) ->
+      console.log "            ...browser \##{item}..."
+      browser = results.browsers[item]
+      browser.visit "#{baseURL}/games", ->
+        console.log browser.html '#games'
+        results.browsers[item] = browser
+        next null, null
+    async.map [0..8], join, next
   ]
 
 , (err, results) ->
