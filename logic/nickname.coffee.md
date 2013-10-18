@@ -21,9 +21,9 @@ username/tripcode pairs.
 
 The timeout for values is in milliseconds, so:
 
- * 1000 milliseconds = 1 second
- * 60 seconds = 1 minute
- * 60 minutes = 1 hour
++ 1000 milliseconds in 1 second
++ 60 seconds in 1 minute
++ 60 minutes in 1 hour
 
       recentlyseen = new nedb()
       recentlyseen.ensureIndex { fieldName: 'unique', unique: true }
