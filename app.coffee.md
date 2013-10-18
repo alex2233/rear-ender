@@ -19,8 +19,8 @@ Module Depenencies
       http = require 'http'
       jade = require 'jade'
 
-ASync Waterfall-based Loader
-============================
+ASync.Auto-based Waterfall Loader
+=================================
 
 By (ab)using async.auto our code ends up more self-organizing when
 it comes to loading components in the correct order; by simply
