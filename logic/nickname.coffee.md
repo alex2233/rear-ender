@@ -19,18 +19,16 @@ Initialization/Constants
 This is the actual list of recently seen (since the `timeout` value)
 username/tripcode pairs.
 
-      recentlyseen = new nedb()
-      recentlyseen.ensureIndex { fieldName: 'unique', unique: true }
-
 The timeout for values is in milliseconds, so:
 
  * 1000 milliseconds = 1 second
  * 60 seconds = 1 minute
  * 60 minutes = 1 hour
 
+      recentlyseen = new nedb()
+      recentlyseen.ensureIndex { fieldName: 'unique', unique: true }
       
       timeout = 60 * 60 * 1000
-      
 
 Core Logic
 ==========
