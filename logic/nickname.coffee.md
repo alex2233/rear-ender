@@ -28,7 +28,9 @@ The timeout for values is in milliseconds, so:
  * 60 seconds = 1 minute
  * 60 minutes = 1 hour
 
+      
       timeout = 60 * 60 * 1000
+      
 
 Core Logic
 ==========
