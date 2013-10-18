@@ -9,7 +9,7 @@
 , "version": "0.0.1"
 , "private": true
 , "scripts":
-  { "start": "node_modules/coffee-script/bin/coffee app.coffee"
+  { "start": "node_modules/coffee-script/bin/coffee app.litcoffee"
   , "test": "node_modules/coffee-script/bin/coffee testing.coffee"
   }
 , "repository":
